@@ -12,8 +12,7 @@ screen = None
 clock = pygame.time.Clock()
 
 SELECT_KEY = None
-KEYBOARD_KEY = pygame.K_TAB
-
+KEYBOARD_KEY = 6
 
 def setup_display():
     global screen
@@ -80,6 +79,7 @@ def main():
         clock.tick(FPS)
         events = pygame.event.get()
         for event in events:
+            logger.debug("pygame event: {}".format(event))
             if event.type == pygame.QUIT:
                 loop = False
             if (event.type == pygame.KEYDOWN):
