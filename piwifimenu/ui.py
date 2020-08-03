@@ -237,8 +237,10 @@ class user_interface:
 
     def _generate_wifi_config_menu(self, network, show_password=True):
         """
-        Create menu for WiFi configs
+        Create menu for WiFi configs.
+        Creates a mapping for each widget
         """
+        widget_map = {}
 
         network_menu = pygame_menu.Menu(
             height=self.SCREEN_HEIGHT,
@@ -248,50 +250,50 @@ class user_interface:
         )
 
         if 'ssid' in network:
-            network_menu.add_text_input(
+            ssid_widget = network_menu.add_text_input(
                 'SSID: ',
                 default=network['ssid']
             )
         else:
-            network_menu.add_text_input(
+            ssid_widget = network_menu.add_text_input(
                 'SSID: '
             )
 
         if show_password:
             if 'psk' in network:
-                network_menu.add_text_input(
+                psk_widget = network_menu.add_text_input(
                     'Password: ',
                     default=network['psk'],
                     password=False
                 )
             else:
-                network_menu.add_text_input(
+                psk_widget = network_menu.add_text_input(
                     'Password: ',
                     password=False
                 )
         else:
-            network_menu.add_text_input(
+            psk_widget = network_menu.add_text_input(
                 'Password: ',
                 password=True
             )
 
         if 'priority' in network:
-            network_menu.add_text_input(
+            priority_widget = network_menu.add_text_input(
                 'Priority: ',
                 default=network['priority']
             )
         else:
-            network_menu.add_text_input(
+            priority_widget = network_menu.add_text_input(
                 'Priority: '
             )
 
         if 'id_str' in network:
-            network_menu.add_text_input(
+            idstr_widget = network_menu.add_text_input(
                 'ID String: ',
                 default=network['id_str']
             )
         else:
-            network_menu.add_text_input(
+            idstr_widget = network_menu.add_text_input(
                 'ID String: '
             )
 
@@ -305,7 +307,14 @@ class user_interface:
             self._wifi_config_menu_back
         )
 
-        return network_menu
+        widget_map['menu'] = network_menu
+        widget_map['ssid'] = ssid_widget
+        widget_map['psk'] = psk_widget
+        widget_map['priority'] = priority_widget
+        widget_map['id_str'] = idstr_widget
+
+        #return network_menu
+        return widget_map
 
     def _wifi_config_menu_back(self):
         """
@@ -319,21 +328,27 @@ class user_interface:
         logger.debug("WiFi config menu data: {}".format(menu_data))
 
         for network in self.networks:
-            if network['id'] == self.networks_menu[menu_id]:
+            if network['id'] == self.networks_menu[menu_id]['id']:
                 # We assume the dict values will be in menu order
-                network['ssid'] = menu_data[0]
-                network['psk'] = menu_data[1]
+                # Changed this to use a dict mapper
+                network_ssid = self.networks_menu[menu_id]['ssid'].get_value()
+                network_psk = self.networks_menu[menu_id]['psk'].get_value()
+                network_priority = self.networks_menu[menu_id]['priority'].get_value()
+                network_id_str = self.networks_menu[menu_id]['id_str'].get_value()
+
+                network['ssid'] = network_ssid
+                network['psk'] = network_psk
                 # Skip if blank
-                if menu_data[2] != '':
-                    network['priority'] = menu_data[2]
+                if network_priority != '':
+                    network['priority'] = network_priority
                 else:
                     logger.debug("Blank priority detected. Skipping...")
                     # Remove key if exists
                     if 'priority' in network:
                         del network['priority']
                 # Skip if blank
-                if menu_data[3] != '':
-                    network['id_str'] = menu_data[3]
+                if network_id_str != '':
+                    network['id_str'] = network_id_str
                 else:
                     logger.debug("Blank ID string detected. Skipping...")
                     # Remove key if exists
@@ -345,7 +360,7 @@ class user_interface:
         # Go back to previous menu
         self.main_menu.reset(1)
         # Change name of button to SSID in case it has changed
-        self._current_widget().set_title(network['ssid'])
+        self._current_widget().set_title(network_ssid)
 
     def _generate_wifi_menu(self):
         """
@@ -357,8 +372,11 @@ class user_interface:
         for network in self.networks:
             if 'ssid' in network:
                 # Generate config menu
-                network_menu = self._generate_wifi_config_menu(network)
-                self.networks_menu[network_menu.get_id()] = network['id']
+                #network_menu = self._generate_wifi_config_menu(network)
+                widget_map = self._generate_wifi_config_menu(network)
+                network_menu = widget_map['menu']
+                widget_map['id'] = network['id']
+                self.networks_menu[network_menu.get_id()] = widget_map
                 # Add wifi button with generated menu as action
                 self.wifi_menu.add_button(
                     network['ssid'],
