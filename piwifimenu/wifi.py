@@ -19,7 +19,7 @@ def get_wifi_config():
         file = open(WPA_FILENAME, "r")
     except FileNotFoundError:
         logger.error("{0} doesn't exist.".format(WPA_FILENAME))
-        return ""
+        return []
     networks = []
     id = 0
     network = {}
