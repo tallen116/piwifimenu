@@ -394,7 +394,11 @@ class keyboard:
     def __init__(self, screen):
         self.screen = screen
         self.layout = pygame_vkeyboard.VKeyboardLayout(
-            pygame_vkeyboard.VKeyboardLayout.QWERTY)
+            pygame_vkeyboard.VKeyboardLayout.QWERTY,
+            allow_uppercase=True,
+            allow_special_chars=True,
+            allow_space=True
+        )
         self.keyboard = pygame_vkeyboard.VKeyboard(
             surface=self.screen,
             text_consumer=self._consumer,
