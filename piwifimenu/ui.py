@@ -110,7 +110,7 @@ class user_interface:
         logger.debug("WiFi config menu data: {}".format(menu_data))
 
         for network in self.networks:
-            if network['id'] == self.networks_menu[menu_id]:
+            if network['id'] == self.networks_menu[menu_id]['id']:
                 self.networks.remove(network)
                 break
         self._generate_wifi_menu()
