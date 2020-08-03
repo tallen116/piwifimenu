@@ -25,7 +25,9 @@ class user_interface:
     wifi_config_menu = None
     _toggled = False
     _exit = False
+    # List of networks
     networks = None
+    # Network and Menu mapper
     networks_menu = None
 
     def __init__(self):
